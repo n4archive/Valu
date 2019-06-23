@@ -2,7 +2,7 @@ sudo: required
 notifications:
   email: false
 jdk:
-  - oraclejdk9
+  - openjdk8
 install:
   - mkdir -p $HOME/.cc-jars
   - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/$HOWLCI_VERSION/howl.ci-$HOWLCI_VERSION.jar
