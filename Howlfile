@@ -16,8 +16,16 @@ Tasks:require "main" {
 Tasks:Task "build" { "clean", "minify" } :Description "Main build task"
 
 Tasks:gist "upload" (function(spec)
-	spec:summary "Valu CC kernel"
+	spec:summary "Valu CC kernel (devel)"
 	spec:gist "49a758efc88cb401bae0cb060f99b689"
+	spec:from "build" {
+		include = { "Valu.lua", "Valu.min.lua" }
+	}
+end) :Requires { "build/Valu.lua", "build/Valu.min.lua" }
+
+Tasks:gist "publish" (function(spec)
+	spec:summary "Valu CC kernel (stable)"
+	spec:gist "31eca60b352a6bcc8d796b13f12c026f"
 	spec:from "build" {
 		include = { "Valu.lua", "Valu.min.lua" }
 	}
