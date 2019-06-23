@@ -1,6 +1,6 @@
 Options:Default "trace"
 buildmode = "stable"
-if howlci then
+if howlci thenb
 buildmode = howlci.getEnv("TRAVIS_BRANCH")
 end
 Tasks:clean()
