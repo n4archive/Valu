@@ -11,6 +11,7 @@ handle.write('{githubKey="'..howlci.getEnv("GHKEY")..'"}')
 handle.close()
 
 local ok, msg = pcall(shell.run, "Howl", "-v", "upload")
+ok = ok and fs.exists("/build/Valu.min.lua")
 if not ok then
 	howlci.status("fail", "Failed running task: " .. (msg or "<no msg>"))
 else
