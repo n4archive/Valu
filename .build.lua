@@ -7,7 +7,7 @@ local handle = fs.open(".howl/settings.lua", "w")
 handle.write('{githubKey="not-set"}')
 handle.close()
 
-local ok, msg = pcall(shell.run, "-v", "build")
+local ok, msg = pcall(shell.run, "Howl", "-v", "build")
 if not ok then
 	howlci.status("fail", "Failed running task: " .. (msg or "<no msg>"))
 else
