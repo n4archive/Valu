@@ -1,5 +1,5 @@
 Options:Default "trace"
-buildmode = "devel"
+buildmode = "stable"
 if howlci then
 buildmode = howlci.getEnv("TRAVIS_BRANCH")
 end
@@ -11,8 +11,8 @@ Tasks:minify "minify" {
 }
 
 Tasks:require "main" {
-	include = "src/*.lua",
-	startup = "src/kernel.lua",
+	include = "valu/*.lua",
+	startup = "valu/kernel.lua",
 	output = "build/Valu.lua",
 }
 
