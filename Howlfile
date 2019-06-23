@@ -25,7 +25,7 @@ Tasks:gist "upload" (function(spec)
 		include = { "Valu.lua", "Valu.min.lua" }
 	}
 end) :Requires { "build/Valu.lua", "build/Valu.min.lua" }
-elseif buildmode == "master"
+elseif buildmode == "master" then
 Tasks:gist "upload" (function(spec)
 	spec:summary "Valu CC kernel (devel)"
 	spec:gist "49a758efc88cb401bae0cb060f99b689"
