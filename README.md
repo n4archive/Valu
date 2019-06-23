@@ -3,5 +3,5 @@
 ## About
 ## Install
 
-    pastebin run vAdj8gh6 get 49a758efc88cb401bae0cb060f99b689/Valu.min.lua Valu.lua
+    pastebin run 0QUAEvtK get nift4 49a758efc88cb401bae0cb060f99b689/Valu.min.lua Valu.lua
 
