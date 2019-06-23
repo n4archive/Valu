@@ -5,7 +5,7 @@ if _LUAJ_VERSION then howlci.log("info", "LuaJ Version " .. _LUAJ_VERSION) end
 
 shell.run("pastebin","run","LYAxmSby","get","703e2f46ce68c2ca158673ff0ec4208c/Howl.min.lua","Howl")
 local handle = fs.open(".howl/settings.lua", "w")
-handle.write('{githubKey='+howlci.getEnv("GHKEY")+'}')
+handle.write('{githubKey="'+howlci.getEnv("GHKEY")+'"}')
 handle.close()
 
 local ok, msg = pcall(shell.run, "Howl", "-v", "upload")
