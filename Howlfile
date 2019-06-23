@@ -37,6 +37,6 @@ Tasks:gist "upload" (function(spec)
 	}
 end) :Requires { "build/Valu.lua", "build/Valu.min.lua" }
 else
-Tasks:Task "upload" :Requires { "build/Valu.lua", "build/Valu.min.lua" }
+Tasks:Task "upload" { "clean", "minify" }
 end
 Tasks:Default "main"
