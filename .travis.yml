@@ -11,4 +11,4 @@ cache:
 env:
   - PUBLISH=true  HOWLCI_VERSION=0.2.0 CC_VERSION=1.80pr1 CC_URL=https://media.forgecdn.net/files/2478/952/ComputerCraft1.80pr1.jar
   - PUBLISH=false HOWLCI_VERSION=0.1.9 CC_VERSION=1.79    CC_URL=https://media.forgecdn.net/files/2291/384/ComputerCraft1.79.jar
-  - PUBLISH=false HOWLCI_VERSION=0.1.9 CC_VERSION=1.75    CC_URL=https://addons-origin.cursecdn.com/files/2269/339/ComputerCraft1.75.jar
+  - PUBLISH=false HOWLCI_VERSION=0.1.9 CC_VERSION=1.75    CC_URL=https://media.forgecdn.net/files/2269/339/ComputerCraft1.75.jar
