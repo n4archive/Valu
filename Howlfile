@@ -2,6 +2,9 @@ Options:Default "trace"
 buildmode = "stable"
 if howlci then
 buildmode = howlci.getEnv("TRAVIS_BRANCH")
+if howlci.getEnv("PUBLISH")=="false" then
+buildmode = buildmode .. "-nopublish"
+end
 end
 Tasks:clean()
 
