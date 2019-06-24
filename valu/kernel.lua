@@ -1,4 +1,5 @@
 vfs = require("valu.vfs")
 ofs = fs
-fs = vfs.createAPI(ofs)
+mainfs = vfs.createAPI(ofs)
+fs = mainfs.getFs()
 
