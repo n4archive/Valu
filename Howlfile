@@ -1,5 +1,5 @@
 Options:Default "trace"
-buildmode = "stable"
+buildmode = "noupstable"
 if howlci then
 buildmode = howlci.getEnv("TRAVIS_BRANCH")
 if howlci.getEnv("PUBLISH")=="false" then
