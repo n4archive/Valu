@@ -1,5 +1,5 @@
-local mounts = require("valu.mounts")(ofs)
-local rpw = function (fnc,fnc2)
+local mountscreator = require("valu.mounts")
+local rpw = function (fnc,fnc2,mounts)
   return function (path)
     if mounts.isReal(path) then
       return fnc(mounts.getrealpath(path))
@@ -10,14 +10,15 @@ local rpw = function (fnc,fnc2)
 end
 return {
   createAPI = function (ofs)
+        local mounts = mountscreator(ofs);
         local fst = {
           combine=ofs.combine,
-          list=rpw(ofs.list,mounts.list),
-          exists=rpw(ofs.exists,mounts.exists),
-          isDir=rpw(ofs.isDir,mounts.isDir),
-          getSize=rpw(ofs.getSize,mounts.getSize),
-          getFreeSpace=rpw(ofs.getFreeSpace,mounts.getFreeSpace),
-          makeDir=rpw(ofs.makeDir,mounts.makeDir),
+          list=rpw(ofs.list,mounts.list,mounts),
+          exists=rpw(ofs.exists,mounts.exists,mounts),
+          isDir=rpw(ofs.isDir,mounts.isDir,mounts),
+          getSize=rpw(ofs.getSize,mounts.getSize,mounts),
+          getFreeSpace=rpw(ofs.getFreeSpace,mounts.getFreeSpace,mounts),
+          makeDir=rpw(ofs.makeDir,mounts.makeDir,mounts),
           move=function(fromPath,toPath)
             -- TODO
           end,
