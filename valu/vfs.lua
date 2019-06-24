@@ -40,6 +40,6 @@ return {
             -- TODO
           end
         }
-        return fst
+        return {fs=fs,mounts=mounts}
   end
 }
