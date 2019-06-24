@@ -1,4 +1,4 @@
-loacl mounts = require("valu.mounts");
+local mounts = require("valu.mounts");
 local rpw = function (fnc,fnc2)
   return function (path)
     if mounts.isReal(path) then
