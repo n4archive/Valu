@@ -4,7 +4,7 @@ local rpw = function (fnc,fnc2,mounts)
     if mounts.isReal(path) then
       return fnc(mounts.getrealpath(path))
     else
-      return fnc2(mounts.getrelapath(path))
+      return fnc2(path)
     end
   end
 end
@@ -19,8 +19,16 @@ return {
           getSize=rpw(ofs.getSize,mounts.getSize,mounts),
           getFreeSpace=rpw(ofs.getFreeSpace,mounts.getFreeSpace,mounts),
           makeDir=rpw(ofs.makeDir,mounts.makeDir,mounts),
+          delete=rpw(ofs.delete,mounts.delete,mounts),
           move=function(fromPath,toPath)
-            -- TODO
+            if mounts.isReal(fromPath) and mounts.isReal(toPath) then
+              ofs.move(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
+            elseif mounts.movePolyfill then
+              mounts.copy(fromPath,toPath)
+              mounts.delete(fromPath)
+            else
+              mounts.move(fromPath,toPath)
+            end
           end,
           copy=function(fromPath,toPath)
             -- TODO
