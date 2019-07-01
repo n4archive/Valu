@@ -39,4 +39,8 @@ end) :Requires { "build/Valu.lua", "build/Valu.min.lua" }
 else
 Tasks:Task "upload" { "clean", "minify" }
 end
+Tasks:Task "run" ({ "clean", "minify" },function()
+	print("Running...")
+	shell.run("build/Valu.lua")
+end)
 Tasks:Default "main"
