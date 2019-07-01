@@ -31,21 +31,31 @@ return {
             end
           end,
           copy=function(fromPath,toPath)
-            -- TODO
+            if mounts.isReal(fromPath) and mounts.isReal(toPath) then
+              ofs.move(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
+            else
+              mounts.copy(fromPath,toPath)
+            end
           end,
           getDrive=function(path)
-            -- TODO
+            return "hdd"
           end,
           getName=ofs.getName,
           open=function (path,mode)
-           -- TODO
+            if mounts.isReal(path) then
+              return ofs.open(path,mode)
+            else
+              return mounts.open(path,mode)
+            end
           end,
           find=function(wildcard)
-            -- TDOD
+            return {}
           end,
           getDir=ofs.getDir,
           complete=function(p1,p2,p3,p4)
-            -- TODO
+            local drive, folder = _findmount(p2)
+            if not mountpoints[drive].isReal then error("Complete not implemented") end
+              return ofs.complete(p1,mounts.getrealpath(p2),p3,p4)
           end
         }
         return {fs=fst,mounts=mounts}
