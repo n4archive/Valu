@@ -4,7 +4,7 @@
 ## Install
 ### Stable
 
-    pastebin run 0QUAEvtK get nift4 31eca60b352a6bcc8d796b13f12c026f/Valu.min.lua Valu.lua
+    pastebin run [0QUAEvtK](https://pastebin.com) get nift4 31eca60b352a6bcc8d796b13f12c026f/Valu.min.lua Valu.lua
 
 ### Devel
 
