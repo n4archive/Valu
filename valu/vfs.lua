@@ -2,7 +2,7 @@ local mountscreator = require("valu.mounts")
 local rpw = function (fnc,fnc2,mounts)
   return function (path)
     if mounts.isReal(path) then
-      return fnc(mounts.getrealpath(path))
+      return fnc("/"..mounts.getrealpath(path))
     else
       return fnc2(path)
     end
@@ -13,7 +13,7 @@ return {
         local mounts = mountscreator(ofs);
         local fst = {
           combine=ofs.combine,
-          list=rpw(ofs.list,mounts.list,mounts),
+          list=rpw(function(path) return mounts.pflist(path,ofs.list) end,function(path) return mounts.pflist(path,mounts.list) end,mounts),
           exists=rpw(ofs.exists,mounts.exists,mounts),
           isDir=rpw(ofs.isDir,mounts.isDir,mounts),
           getSize=rpw(ofs.getSize,mounts.getSize,mounts),
@@ -43,7 +43,7 @@ return {
           getName=ofs.getName,
           open=function (path,mode)
             if mounts.isReal(path) then
-              return ofs.open(path,mode)
+              return ofs.open("/"..mounts.getrealpath(path),mode)
             else
               return mounts.open(path,mode)
             end
@@ -54,7 +54,7 @@ return {
           getDir=ofs.getDir,
           complete=function(p1,p2,p3,p4)
             local drive, folder = _findmount(p2)
-            if not mountpoints[drive].isReal then error("Complete not implemented") end
+            if not mounts.isReal(p2) then error("Complete not implemented") end
               return ofs.complete(p1,mounts.getrealpath(p2),p3,p4)
           end
         }
