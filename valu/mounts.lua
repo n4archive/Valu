@@ -24,7 +24,7 @@ return function(ofs)
   end
   function _wopen(path,mode)
     local drive, folder = _findmount(path)
-    return mountpoints[drive].fse.open(folder,mode)
+    return mountpoints[drive].fse(folder,mode)
   end
   return {
     movePolyfill = true,
@@ -40,24 +40,25 @@ return function(ofs)
       local drive, folder = _findmount(path)
       return mountpoints[drive].isReal
     end,
-    delete = function(path) local drive, folder = _findmount(path) if not mountpoints[drive].readOnly then mountpoints[drive].fse.delete(folder) else error(path .. ": Access denied") end end,
-    list = function(path) local drive, folder = _findmount(path) mountpoints[drive].fse.list(folder) end,
-    exists = function(path) local drive, folder = _findmount(path) mountpoints[drive].fse.exists(folder) end,
-    isDir = function(path) local drive, folder = _findmount(path) mountpoints[drive].fse.isDir(folder) end,
-    getSize = function(path) local drive, folder = _findmount(path) mountpoints[drive].fse.getSize(folder) end,
-    getFreeSpace = function(path) local drive, folder = _findmount(path) mountpoints[drive].fse.getFreeSpace(folder) end,
-    makeDir = function(path) local drive, folder = _findmount(path) if not mountpoints[drive].readOnly then mountpoints[drive].fse.makeDir(folder) else error(path .. ": Access denied") end end,
+    delete = function(path) local drive, folder = _findmount(path) if not mountpoints[drive].fse(ofs.combine(folder,".."),"s").readOnly then mountpoints[drive].fse(folder,"d") else error(path .. ": Access denied") end end,
+    list = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(folder,"l") end,
+    exists = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(folder,"s") ~= nil end,
+    isDir = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(folder,"s").isDir end,
+    getSize = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(folder,"s").size end,
+    getFreeSpace = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse("/","f") end,
+    makeDir = function(path) local drive, folder = _findmount(path) if not mountpoints[drive].fse(ofs.combine(folder,".."),"s").readOnly then mountpoints[drive].fse(folder,"m") else error(path .. ": Access denied") end end,
+    isReadOnly = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(ofs.combine(folder,".."),"s").readOnly end
     move = function(from,to)
         local fdrive, ffolder = _findmount(from)
         local tdrive, tfolder = _findmount(to)
-        if not mountpoints[tdrive].readOnly then
+        if not mountpoints[tdrive].fse(ofs.combine(tfolder,".."),"s").readOnly then
             error("Move not implemented")
         else error(to .. ": Access denied") end
     end,
     copy = function(from,to)
         local fdrive, ffolder = _findmount(from)
         local tdrive, tfolder = _findmount(to)
-        if not mountpoints[tdrive].readOnly then
+        if not mountpoints[tdrive].fse(ofs.combine(tfolder,".."),"s").readOnly then
             local fhandle = _wopen(from,"r")
             local thandle = _wopen(to,"w")
             thandle.write(fhandle.readAll())
