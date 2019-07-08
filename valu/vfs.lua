@@ -32,7 +32,7 @@ return {
           end,
           copy=function(fromPath,toPath)
             if mounts.isReal(fromPath) and mounts.isReal(toPath) then
-              ofs.move(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
+              ofs.copy(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
             else
               mounts.copy(fromPath,toPath)
             end
