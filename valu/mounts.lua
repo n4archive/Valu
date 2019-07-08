@@ -47,7 +47,7 @@ return function(ofs)
     getSize = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(folder,"s").size end,
     getFreeSpace = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse("/","f") end,
     makeDir = function(path) local drive, folder = _findmount(path) if not mountpoints[drive].fse(ofs.combine(folder,".."),"s").readOnly then mountpoints[drive].fse(folder,"m") else error(path .. ": Access denied") end end,
-    isReadOnly = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(ofs.combine(folder,".."),"s").readOnly end
+    isReadOnly = function(path) local drive, folder = _findmount(path) return mountpoints[drive].fse(ofs.combine(folder,".."),"s").readOnly end,
     move = function(from,to)
         local fdrive, ffolder = _findmount(from)
         local tdrive, tfolder = _findmount(to)
