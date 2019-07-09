@@ -1,7 +1,7 @@
 return function(ofs)
   function split(a,b)local c={}local d="(.-)"..b;local e=1;local f,g,h=a:find(d,1)while f do if f~=1 or h~=""then table.insert(c,h)end;e=g+1;f,g,h=a:find(d,e)end;if e<=#a then h=a:sub(e)table.insert(c,h)end;return c end
   function split_path(a)return split(a,'[\\/]+')end
-  local mountpoints = {["/"]={isReal=true,realPath="/ccx",readOnly=false},["/rom"]={isReal=true,realPath="/rom",readOnly=false}}
+  local mountpoints = {["/"]={isReal=true,realPath="/ccx/valu",readOnly=false},["/rom"]={isReal=true,realPath="/rom",readOnly=false}}
   function _findmounthelp(path)
     local x = split_path(path)
     for i = #x,1,-1 do
@@ -71,6 +71,7 @@ return function(ofs)
     end,
     pflist = function(path,appto)
         -- TODO
+        return appto
     end,
   }
 end

@@ -1,5 +1,5 @@
 local mountscreator = require("valu.mounts")
-local rpw = function (fnc,fnc2,mounts)
+local rpw = function (fnc,fnc2,mounts,ofs)
   return function (path)
     if mounts.isReal(path) then
       return fnc("/"..mounts.getrealpath(path))
@@ -8,7 +8,7 @@ local rpw = function (fnc,fnc2,mounts)
     end
   end
 end
-local rpwc = function (fnc,fnc2,mounts)
+local rpwc = function (fnc,fnc2,mounts,ofs)
   return function (path)
     if mounts.isReal(path) then
       if not ofs.exists("/"..mounts.getrealpath(path)) then error(path..": File not found") end
@@ -19,19 +19,22 @@ local rpwc = function (fnc,fnc2,mounts)
     end
   end
 end
+local w = function(x)return x end
+local lw=function(a,b,...)local r=b(...)return function(...)print(a)return(r(...)) end end
 return {
   createAPI = function (ofs)
         local mounts = mountscreator(ofs);
+        -- TODO Wrap everything in lw()
         local fst = {
-          combine=ofs.combine,
-          list=rpwc(function(path) return mounts.pflist(path,ofs.list) end,function(path) return mounts.pflist(path,mounts.list) end,mounts),
-          exists=rpw(ofs.exists,mounts.exists,mounts),
-          isDir=rpwc(ofs.isDir,mounts.isDir,mounts),
-          isReadOnly=rpwc(ofs.isReadOnly,mounts.isReadOnly,mounts),
-          getSize=rpwc(ofs.getSize,mounts.getSize,mounts),
-          getFreeSpace=rpwc(ofs.getFreeSpace,mounts.getFreeSpace,mounts),
-          makeDir=rpw(ofs.makeDir,mounts.makeDir,mounts),
-          delete=rpwc(ofs.delete,mounts.delete,mounts),
+          combine=lw("fs.combine",w,ofs.combine),
+          list=lw("fs.list",rpwc,function(path) return mounts.pflist(path,ofs.list) end,function(path) return mounts.pflist(path,mounts.list) end,mounts,ofs),
+          exists=lw("fs.exists",rpw,ofs.exists,mounts.exists,mounts,ofs),
+          isDir=lw("fs.isDir",rpwc,ofs.isDir,mounts.isDir,mounts,ofs),
+          isReadOnly=rpwc(ofs.isReadOnly,mounts.isReadOnly,mounts,ofs),
+          getSize=rpwc(ofs.getSize,mounts.getSize,mounts,ofs),
+          getFreeSpace=rpwc(ofs.getFreeSpace,mounts.getFreeSpace,mounts,ofs),
+          makeDir=rpw(ofs.makeDir,mounts.makeDir,mounts,ofs),
+          delete=rpwc(ofs.delete,mounts.delete,mounts,ofs),
           move=function(fromPath,toPath)
             if mounts.isReal(fromPath) and mounts.isReal(toPath) then
               ofs.move(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
