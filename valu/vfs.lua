@@ -24,7 +24,6 @@ local lw=function(a,b,...)local r=b(...)return function(...)print(a)return(r(...
 return {
   createAPI = function (ofs)
         local mounts = mountscreator(ofs);
-        -- TODO Wrap everything in lw()
         local fst = {
           combine=lw("fs.combine",w,ofs.combine),
           list=lw("fs.list",rpwc,function(path) return mounts.pflist(path,ofs.list) end,function(path) return mounts.pflist(path,mounts.list) end,mounts,ofs),
