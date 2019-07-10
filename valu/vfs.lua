@@ -11,10 +11,10 @@ end
 local rpwc = function (fnc,fnc2,mounts,ofs)
   return function (path)
     if mounts.isReal(path) then
-      if not ofs.exists("/"..mounts.getrealpath(path)) then error(path..": File not found",2) end
+      if not ofs.exists("/"..mounts.getrealpath(path)) then error(path..": File not found",3) end
       return fnc("/"..mounts.getrealpath(path))
     else
-      if not mounts.exists("/"..mounts.getrelapath(path)) then error(path..": File not found",2) end
+      if not mounts.exists("/"..mounts.getrelapath(path)) then error(path..": File not found",3) end
       return fnc2(path)
     end
   end
