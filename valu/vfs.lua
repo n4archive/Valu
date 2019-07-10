@@ -30,12 +30,12 @@ return {
           list=lw("fs.list",rpwc,function(path) return mounts.pflist(path,ofs.list) end,function(path) return mounts.pflist(path,mounts.list) end,mounts,ofs),
           exists=lw("fs.exists",rpw,ofs.exists,mounts.exists,mounts,ofs),
           isDir=lw("fs.isDir",rpwc,ofs.isDir,mounts.isDir,mounts,ofs),
-          isReadOnly=rpwc(ofs.isReadOnly,mounts.isReadOnly,mounts,ofs),
-          getSize=rpwc(ofs.getSize,mounts.getSize,mounts,ofs),
-          getFreeSpace=rpwc(ofs.getFreeSpace,mounts.getFreeSpace,mounts,ofs),
-          makeDir=rpw(ofs.makeDir,mounts.makeDir,mounts,ofs),
-          delete=rpwc(ofs.delete,mounts.delete,mounts,ofs),
-          move=function(fromPath,toPath)
+          isReadOnly=lw("fs.isReadOnly",rpwc,ofs.isReadOnly,mounts.isReadOnly,mounts,ofs),
+          getSize=lw("fs.getSize",rpwc,ofs.getSize,mounts.getSize,mounts,ofs),
+          getFreeSpace=lw("fs.getFreeSpace",rpwc,ofs.getFreeSpace,mounts.getFreeSpace,mounts,ofs),
+          makeDir=lw("fs.makeDir",rpw,ofs.makeDir,mounts.makeDir,mounts,ofs),
+          delete=lw("fs.delete",rpwc,ofs.delete,mounts.delete,mounts,ofs),
+          move=lw("fs.move",w,function(fromPath,toPath)
             if mounts.isReal(fromPath) and mounts.isReal(toPath) then
               ofs.move(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
             elseif mounts.movePolyfill then
@@ -44,34 +44,34 @@ return {
             else
               mounts.move(fromPath,toPath)
             end
-          end,
-          copy=function(fromPath,toPath)
+          end),
+          copy=lw("fs.copy",w,function(fromPath,toPath)
             if mounts.isReal(fromPath) and mounts.isReal(toPath) then
               ofs.copy(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
             else
               mounts.copy(fromPath,toPath)
             end
-          end,
-          getDrive=function(path)
+          end),
+          getDrive=lw("fs.getDrive",w,function(path)
             return "hdd"
-          end,
-          getName=ofs.getName,
-          open=function (path,mode)
+          end),
+          getName=lw("fs.getName",w,ofs.getName),
+          open=lw("fs.open",w,function (path,mode)
             if mounts.isReal(path) then
               return ofs.open("/"..mounts.getrealpath(path),mode)
             else
               return mounts.open(path,mode)
             end
-          end,
-          find=function(wildcard)
+          end),
+          find=lw("fs.find",w,function(wildcard)
             return {}
           end,
-          getDir=ofs.getDir,
-          complete=function(p1,p2,p3,p4)
+          getDir=lw("fs.getDir",w,ofs.getDir),
+          complete=lw("fs.complete",w,function(p1,p2,p3,p4)
             local drive, folder = _findmount(p2)
             if not mounts.isReal(p2) then error("Complete not implemented") end
               return ofs.complete(p1,mounts.getrealpath(p2),p3,p4)
-          end
+          end),
         }
         return {fs=fst,mounts=mounts}
   end
