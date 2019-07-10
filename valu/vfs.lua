@@ -20,7 +20,7 @@ local rpwc = function (fnc,fnc2,mounts,ofs)
   end
 end
 local w = function(x)return x end
-local lw=function(a,b,...)local r=b(...)return function(...)print(a)return(r(...)) end end
+local lw=function(a,b,...)local r=b(...)return(function(...)print(a)return(r(...))end)end
 return {
   createAPI = function (ofs)
         local mounts = mountscreator(ofs);
@@ -64,7 +64,7 @@ return {
           end),
           find=lw("fs.find",w,function(wildcard)
             return {}
-          end,
+          end),
           getDir=lw("fs.getDir",w,ofs.getDir),
           complete=lw("fs.complete",w,function(p1,p2,p3,p4)
             local drive, folder = _findmount(p2)

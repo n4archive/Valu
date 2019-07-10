@@ -71,7 +71,7 @@ return function(ofs)
     end,
     pflist = function(path,appto)
         -- TODO
-        return appto
+        return appto(path)
     end,
   }
 end
