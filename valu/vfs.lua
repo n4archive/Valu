@@ -1,6 +1,7 @@
 local mountscreator = require("valu.mounts")
 local rpw = function (fnc,fnc2,mounts,ofs)
   return function (path)
+    local path = ofs.combine("/",path)
     if mounts.isReal(path) then
       return fnc("/"..mounts.getrealpath(path))
     else
@@ -10,6 +11,7 @@ local rpw = function (fnc,fnc2,mounts,ofs)
 end
 local rpwc = function (fnc,fnc2,mounts,ofs)
   return function (path)
+    local path = ofs.combine("/",path)
     if mounts.isReal(path) then
       if not ofs.exists("/"..mounts.getrealpath(path)) then error(path..": File not found",3) end
       return fnc("/"..mounts.getrealpath(path))
@@ -19,14 +21,27 @@ local rpwc = function (fnc,fnc2,mounts,ofs)
     end
   end
 end
+local _ls = function (fnc,fnc2,mounts,ofs)
+  return function (path)
+    local path = ofs.combine("/",path)
+    if mounts.isReal(path) then
+      if not ofs.exists("/"..mounts.getrealpath(path)) then error(path..": File not found",3) end
+      return fnc(path,"/"..mounts.getrealpath(path))
+    else
+      if not mounts.exists("/"..mounts.getrelapath(path)) then error(path..": File not found",3) end
+      return fnc2(path)
+    end
+  end
+end
 local w = function(x)return x end
-local lw=function(a,b,...)local r=b(...)return(function(...)print(a)return(r(...))end)end
+local log_fscall = false
+local lw=function(a,b,...)local r=b(...)return(function(...)if(log_fscall)then print(a)end return(r(...))end) end
 return {
   createAPI = function (ofs)
         local mounts = mountscreator(ofs);
         local fst = {
           combine=lw("fs.combine",w,ofs.combine),
-          list=lw("fs.list",rpwc,function(path) return mounts.pflist(path,ofs.list) end,function(path) return mounts.pflist(path,mounts.list) end,mounts,ofs),
+          list=lw("fs.list",_ls,function(path,rpath) return mounts.pflist(path,rpath,ofs.list) end,function(path) return mounts.pflist(path,path,mounts.list) end,mounts,ofs),
           exists=lw("fs.exists",rpw,ofs.exists,mounts.exists,mounts,ofs),
           isDir=lw("fs.isDir",rpwc,ofs.isDir,mounts.isDir,mounts,ofs),
           isReadOnly=lw("fs.isReadOnly",rpwc,ofs.isReadOnly,mounts.isReadOnly,mounts,ofs),
@@ -35,6 +50,8 @@ return {
           makeDir=lw("fs.makeDir",rpw,ofs.makeDir,mounts.makeDir,mounts,ofs),
           delete=lw("fs.delete",rpwc,ofs.delete,mounts.delete,mounts,ofs),
           move=lw("fs.move",w,function(fromPath,toPath)
+            local fromPath = ofs.combine("/",fromPath)
+            local toPath = ofs.combine("/",toPath)
             if mounts.isReal(fromPath) and mounts.isReal(toPath) then
               ofs.move(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
             elseif mounts.movePolyfill then
@@ -45,6 +62,8 @@ return {
             end
           end),
           copy=lw("fs.copy",w,function(fromPath,toPath)
+            local fromPath = ofs.combine("/",fromPath)
+            local toPath = ofs.combine("/",toPath)
             if mounts.isReal(fromPath) and mounts.isReal(toPath) then
               ofs.copy(mounts.getrealpath(fromPath),mounts.getrealpath(toPath))
             else
@@ -52,10 +71,12 @@ return {
             end
           end),
           getDrive=lw("fs.getDrive",w,function(path)
+            local path = ofs.combine("/",path)
             return "hdd"
           end),
           getName=lw("fs.getName",w,ofs.getName),
           open=lw("fs.open",w,function (path,mode)
+            local path = ofs.combine("/",path)
             if mounts.isReal(path) then
               return ofs.open("/"..mounts.getrealpath(path),mode)
             else

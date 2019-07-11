@@ -69,9 +69,13 @@ return function(ofs)
     open = function(path,mode)
       return _wopen(path,mode)
     end,
-    pflist = function(path,appto)
-        -- TODO
-        return appto(path)
+    pflist = function(path,rpath,appto)
+      -- TODO Fix subdirs found
+        local o = appto(rpath)
+        for x,_ in pairs(mountpoints) do
+          if string.starts(x,path) and x ~= "/" then table.insert(o,x:sub(2,#x)) end
+        end
+        return o
     end,
   }
 end
