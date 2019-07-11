@@ -66,11 +66,7 @@ return {
             return {}
           end),
           getDir=lw("fs.getDir",w,ofs.getDir),
-          complete=lw("fs.complete",w,function(p1,p2,p3,p4)
-            local drive, folder = _findmount(p2)
-            if not mounts.isReal(p2) then error("Complete not implemented") end
-              return ofs.complete(p1,mounts.getrealpath(p2),p3,p4)
-          end),
+          complete=lw("fs.complete",ofs.complete),
         }
         return {fs=fst,mounts=mounts}
   end
