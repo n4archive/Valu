@@ -66,7 +66,7 @@ return {
             return {}
           end),
           getDir=lw("fs.getDir",w,ofs.getDir),
-          complete=lw("fs.complete",ofs.complete),
+          complete=lw("fs.complete",w,ofs.complete),
         }
         return {fs=fst,mounts=mounts}
   end
