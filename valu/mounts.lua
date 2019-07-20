@@ -21,7 +21,7 @@ return function(ofs)
     return split(a, "[\\/]+")
   end
   local mountpoints = {
-    ["/"] = {isReal = true, realPath = "/ccx/valu", readOnly = true},
+    ["/"] = {isReal = true, realPath = "/ccx/valu", readOnly = false},
     ["/test"] = {isReal = true, realPath = "/rom", readOnly = true},
     ["/rom"] = {isReal = true, realPath = "/rom", readOnly = true},
     ["/v"] = {isReal = false, readOnly = false, fse = require("valu.ramfs")()}
@@ -42,9 +42,9 @@ return function(ofs)
   local _findmount = function(path)
     local x, y = _findmounthelp(path)
     if not x and not y then
-      return "/", path
+      return "/", path:gsub("//","/")
     end
-    return x, y
+    return x, y:gsub("//","/")
   end
   local _wopen = function(path, mode)
     local drive, folder = _findmount(path)

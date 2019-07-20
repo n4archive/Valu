@@ -18,7 +18,7 @@ local rpwc = function(fnc, fnc2, mounts, ofs)
       end
       return fnc("/" .. mounts.getrealpath(path))
     else
-      if not mounts.exists("/" .. mounts.getrelapath(path)) then
+      if not mounts.exists("/" .. path) then
         error(path .. ": File not found", 3)
       end
       return fnc2(path)
@@ -34,7 +34,7 @@ local _ls = function(fnc, fnc2, mounts, ofs)
       end
       return fnc(path, "/" .. mounts.getrealpath(path))
     else
-      if not mounts.exists("/" .. mounts.getrelapath(path)) then
+      if not mounts.exists("/" .. path) then
         error(path .. ": File not found", 3)
       end
       return fnc2(path)
