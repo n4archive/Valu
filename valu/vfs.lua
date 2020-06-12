@@ -72,7 +72,7 @@ return {
         ofs
       ),
       exists = lw("fs.exists", rpw, ofs.exists, mounts.exists, mounts, ofs),
-      isDir = lw("fs.isDir", rpwc, ofs.isDir, mounts.isDir, mounts, ofs),
+      isDir = lw("fs.isDir", rpw, ofs.isDir, mounts.isDir, mounts, ofs),
       isReadOnly = lw(
         "fs.isReadOnly",
         function(f, ofs)
@@ -111,8 +111,12 @@ return {
           local toPath = ofs.combine("/", toPath)
           if mounts.isReal(fromPath) and mounts.isReal(toPath) then
             ofs.copy(mounts.getrealpath(fromPath), mounts.getrealpath(toPath))
-          else
-            mounts.copy(fromPath, toPath)
+          elseif mounts.isReal(fromPath) and not mounts.isReal(toPath) then
+            mounts.copy(mounts.getrealpath(fromPath), toPath, true, false)
+	  elseif not mounts.isReal(fromPath) and mounts.isReal(toPath) then
+            mounts.copy(fromPath, mounts.getrealpath(toPath), false, true)
+	  else
+	    mounts.copy(fromPath, toPath, false, false)
           end
         end
       ),
