@@ -9,22 +9,6 @@ local rpw = function(fnc, fnc2, mounts, ofs)
     end
   end
 end
-local rpwc = function(fnc, fnc2, mounts, ofs)
-  return function(path)
-    local path = ofs.combine("/", path)
-    if mounts.isReal(path) then
-      if not ofs.exists("/" .. mounts.getrealpath(path)) then
-        error(path .. ": File not found", 3)
-      end
-      return fnc("/" .. mounts.getrealpath(path))
-    else
-      if not mounts.exists("/" .. path) then
-        error(path .. ": File not found", 3)
-      end
-      return fnc2(path)
-    end
-  end
-end
 local _ls = function(fnc, fnc2, mounts, ofs)
   return function(path)
     local path = ofs.combine("/", path)
@@ -83,10 +67,10 @@ return {
         mounts.isReadOnly,
         ofs
       ),
-      getSize = lw("fs.getSize", rpwc, ofs.getSize, mounts.getSize, mounts, ofs),
-      getFreeSpace = lw("fs.getFreeSpace", rpwc, ofs.getFreeSpace, mounts.getFreeSpace, mounts, ofs),
+      getSize = lw("fs.getSize", rpw, ofs.getSize, mounts.getSize, mounts, ofs),
+      getFreeSpace = lw("fs.getFreeSpace", rpw, ofs.getFreeSpace, mounts.getFreeSpace, mounts, ofs),
       makeDir = lw("fs.makeDir", rpw, ofs.makeDir, mounts.makeDir, mounts, ofs),
-      delete = lw("fs.delete", rpwc, ofs.delete, mounts.delete, mounts, ofs),
+      delete = lw("fs.delete", rpw, ofs.delete, mounts.delete, mounts, ofs),
       move = lw(
         "fs.move",
         w,

@@ -48,7 +48,9 @@ return function(ofs)
   end
   local _wopen = function(path, mode)
     local drive, folder = _findmount(path)
-    if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found") end
+    local stat = mountpoints[drive].fse(folder, "s")
+    if not stat then error(path .. ": File or Folder not found") end
+    if mode == "s" then return stat end
     return mountpoints[drive].fse(folder, mode)
   end
   local _ro = function(path)
@@ -58,8 +60,9 @@ return function(ofs)
     if mountpoints[drive].isReal then
       x = ofs.isReadOnly(mountpoints[drive].realPath)
     else
-      if mountpoints[drive].fse(ofs.combine(folder, ".."), "s") ~= nil then
-        f = mountpoints[drive].fse(ofs.combine(folder, ".."), "s").readOnly
+      local stat = mountpoints[drive].fse(ofs.combine(folder, ".."), "s")
+      if stat ~= nil then
+        f = stat.readOnly
       end
     end
     return f or mountpoints[drive].readOnly or x
@@ -90,8 +93,9 @@ return function(ofs)
     end,
     list = function(path)
       local drive, folder = _findmount(path)
-      if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found") end
-      if not mountpoints[drive].fse(folder, "s") then error(path .. ": Not a folder") end
+      local stat = mountpoints[drive].fse(folder, "s")
+      if not stat then error(path .. ": File or Folder not found") end
+      if not stat.isDir then error(path .. ": Not a folder") end
       return mountpoints[drive].fse(folder, "l")
     end,
     exists = function(path)
@@ -100,13 +104,16 @@ return function(ofs)
     end,
     isDir = function(path)
       local drive, folder = _findmount(path)
-      if not mountpoints[drive].fse(folder, "s") then return nil end
-      return mountpoints[drive].fse(folder, "s").isDir
+      local stat = mountpoints[drive].fse(folder, "s")
+      if not stat then return nil end
+      return stat.isDir
     end,
     getSize = function(path)
       local drive, folder = _findmount(path)
-      if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found") end
-      return mountpoints[drive].fse(folder, "s").size
+      local stat = mountpoints[drive].fse(folder, "s")
+      if not stat then error(path .. ": File or Folder not found") end
+      return stat.size
+      
     end,
     getFreeSpace = function(path)
       local drive, folder = _findmount(path)
@@ -115,8 +122,9 @@ return function(ofs)
     end,
     makeDir = function(path)
       local drive, folder = _findmount(path)
-      if not mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s") then error("/" .. ofs.combine(path, "..") .. ": File or Folder not found") end
-      if (not mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s").readOnly) and (mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s").isDir) then
+      local stat = mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s")
+      if not stat then error("/" .. ofs.combine(path, "..") .. ": File or Folder not found") end
+      if not stat.readOnly and stat.isDir then
         mountpoints[drive].fse(folder, "m")
       else
         error(path .. ": Access denied")
