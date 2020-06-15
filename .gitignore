@@ -39,6 +39,15 @@ luac.out
 *.x86_64
 *.hex
 
+# vim
+*.swp
+*.swo
+
 # cc
 Howl
 build/
+test.lua
+trace
+.lua_history
+.shell_history
+.mbs*

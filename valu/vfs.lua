@@ -1,7 +1,7 @@
 local mountscreator = require("valu.mounts")
 local rpw = function(fnc, fnc2, mounts, ofs)
   return function(path)
-    local path = ofs.combine("/", path)
+    path = ofs.combine("/", path)
     if mounts.isReal(path) then
       return fnc("/" .. mounts.getrealpath(path))
     else
@@ -11,16 +11,10 @@ local rpw = function(fnc, fnc2, mounts, ofs)
 end
 local _ls = function(fnc, fnc2, mounts, ofs)
   return function(path)
-    local path = ofs.combine("/", path)
+    path  = ofs.combine("/", path)
     if mounts.isReal(path) then
-      if not ofs.exists("/" .. mounts.getrealpath(path)) then
-        error(path .. ": File not found", 3)
-      end
       return fnc(path, "/" .. mounts.getrealpath(path))
     else
-      if not mounts.exists("/" .. path) then
-        error(path .. ": File not found", 3)
-      end
       return fnc2(path)
     end
   end
@@ -75,8 +69,8 @@ return {
         "fs.move",
         w,
         function(fromPath, toPath)
-          local fromPath = ofs.combine("/", fromPath)
-          local toPath = ofs.combine("/", toPath)
+          fromPath = ofs.combine("/", fromPath)
+          toPath = ofs.combine("/", toPath)
           if mounts.isReal(fromPath) and mounts.isReal(toPath) then
             ofs.move(mounts.getrealpath(fromPath), mounts.getrealpath(toPath))
           elseif mounts.movePolyfill then
@@ -91,8 +85,8 @@ return {
         "fs.copy",
         w,
         function(fromPath, toPath)
-          local fromPath = ofs.combine("/", fromPath)
-          local toPath = ofs.combine("/", toPath)
+          fromPath = ofs.combine("/", fromPath)
+          toPath = ofs.combine("/", toPath)
           if mounts.isReal(fromPath) and mounts.isReal(toPath) then
             ofs.copy(mounts.getrealpath(fromPath), mounts.getrealpath(toPath))
           elseif mounts.isReal(fromPath) and not mounts.isReal(toPath) then
@@ -108,7 +102,7 @@ return {
         "fs.getDrive",
         w,
         function(path)
-          local path = ofs.combine("/", path)
+          path = ofs.combine("/", path)
           return "hdd"
         end
       ),
@@ -117,7 +111,7 @@ return {
         "fs.open",
         w,
         function(path, mode)
-          local path = ofs.combine("/", path)
+          path = ofs.combine("/", path)
           if mounts.isReal(path) then
             return ofs.open("/" .. mounts.getrealpath(path), mode)
           else

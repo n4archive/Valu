@@ -49,7 +49,6 @@ return function(ofs)
   local _wopen = function(path, mode)
     local drive, folder = _findmount(path)
     local stat = mountpoints[drive].fse(folder, "s")
-    if not stat then error(path .. ": File or Folder not found") end
     if mode == "s" then return stat end
     return mountpoints[drive].fse(folder, mode)
   end
@@ -66,6 +65,25 @@ return function(ofs)
       end
     end
     return f or mountpoints[drive].readOnly or x
+  end
+  function _mdir(path)
+    local drive, folder = _findmount(path)
+    local stat = mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s")
+    if not stat then 
+      _mdir("/" .. ofs.combine(ofs.combine(drive, folder), ".."))
+      stat = mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s")
+    end
+    if not stat.readOnly and stat.isDir then
+      mountpoints[drive].fse(folder, "m")
+    else
+      error(path .. ": Access denied")
+    end
+  end
+  function _rdel(drive,folder)
+    for _, child in pairs(mountpoints[drive].fse(folder,"l")) do
+      if mountpoints[drive].fse("/" .. ofs.combine(folder,child),"s").isDir then _rdel(drive,"/" .. ofs.combine(folder,child)) end
+      mountpoints[drive].fse("/" .. ofs.combine(folder,child),"d")
+    end
   end
   return {
     movePolyfill = true,
@@ -84,8 +102,13 @@ return function(ofs)
     end,
     delete = function(path)
       local drive, folder = _findmount(path)
-      if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found") end
+      if folder == "/" then error(path .. ": Can't delete filesystem root", 3) end
+      local stat = mountpoints[drive].fse(folder, "s")
+      if not stat then error(path .. ": File or Folder not found",3) end
       if not mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s").readOnly then
+        if stat.isDir then
+          _rdel(drive, folder)
+        end
         mountpoints[drive].fse(folder, "d")
       else
         error(path .. ": Access denied")
@@ -94,8 +117,8 @@ return function(ofs)
     list = function(path)
       local drive, folder = _findmount(path)
       local stat = mountpoints[drive].fse(folder, "s")
-      if not stat then error(path .. ": File or Folder not found") end
-      if not stat.isDir then error(path .. ": Not a folder") end
+      if not stat then error(path .. ": File or Folder not found",4) end
+      if not stat.isDir then error(path .. ": Not a folder",4) end
       return mountpoints[drive].fse(folder, "l")
     end,
     exists = function(path)
@@ -117,19 +140,10 @@ return function(ofs)
     end,
     getFreeSpace = function(path)
       local drive, folder = _findmount(path)
-      if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found") end
+      if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found",3) end
       return mountpoints[drive].fse(folder, "f")
     end,
-    makeDir = function(path)
-      local drive, folder = _findmount(path)
-      local stat = mountpoints[drive].fse("/" .. ofs.combine(folder, ".."), "s")
-      if not stat then error("/" .. ofs.combine(path, "..") .. ": File or Folder not found") end
-      if not stat.readOnly and stat.isDir then
-        mountpoints[drive].fse(folder, "m")
-      else
-        error(path .. ": Access denied")
-      end
-    end,
+    makeDir = _mdir,
     isReadOnly = _ro,
     move = function(from, to)
       local fdrive, ffolder = _findmount(from)
@@ -147,10 +161,10 @@ return function(ofs)
       if not fromReal then fdrive, ffolder = _findmount(from) end
       if not toReal then tdrive, tfolder = _findmount(to) end
       if not fromReal then if not mountpoints[fdrive].fse("/" .. ofs.combine(ffolder, ".."), "s") then error(from .. ": File or Folder not found") end else if not ofs.exists(from) then error(from .. ": File or Folder not found") end end
-      if not toReal then if not mountpoints[tdrive].fse("/" .. ofs.combine(tfolder, ".."), "s") then error(to .. ": File or Folder not found") end else if not ofs.exists(toPath) then error(from .. ": File or Folder not found") end end
+      if not toReal then if not mountpoints[tdrive].fse("/" .. ofs.combine(tfolder, ".."), "s") then error(to .. ": File or Folder not found") end else if not ofs.exists(to) then error(from .. ": File or Folder not found") end end
       if not _ro(tfolder) then
         local fhandle, thandle
-	if fromReal then fhandle = ofs.open(from, "rb") else fhandle = _wopen(from, "rb") end
+        if fromReal then fhandle = ofs.open(from, "rb") else fhandle = _wopen(from, "rb") end
         if toReal then thandle = ofs.open(to, "rb") else thandle = _wopen(to, "wb") end
         thandle.write(fhandle.readAll())
         thandle.close()
