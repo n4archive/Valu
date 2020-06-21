@@ -20,11 +20,74 @@ return function()
             end
             table.remove(ram[file_root].children,index[fs.getName(file)])
             ram[file] = nil
-        elseif mode == "r" then --std open
-        elseif mode == "w" then --std open
-        elseif mode == "a" then --std open
+        -- r, w and a are handled automatically, you only need the byte variants
         elseif mode == "rb" then --std open
+            local handle = {pos = 0, file_table = ram[file].contents}
+            local fandle = {}
+            function fandle.close()
+                if not handle then error("Attempted to close closed handle",1) end
+                handle = nil
+            end
+            function fandle.read()
+                if not handle then error("Attempted to use closed handle",1) end
+                handle.pos = handle.pos + 1
+                return handle.file_table[handle.pos]
+            end
+            return fandle
         elseif mode == "wb" then --std open
+	    	ram[file] = {desc={readOnly=false,isDir=false,size=0},contents={}}
+            local handle = {pos = 0, file_table = ram[file].contents}
+            local fandle = {}
+            function fandle.close()
+                -- flush gets called before close automatically
+                if not handle then error("Attempted to close closed handle",1) end
+                handle = nil
+            end
+            function fandle.write(f)
+                if not handle then error("Attempted to use closed handle",1) end
+                handle.pos = handle.pos + 1
+                table.insert(handle.file_table,handle.pos,f)
+            end
+            function fandle.flush()
+                ram[file].desc.size = #(ram[file].contents)
+            end
+            return fandle
+        elseif mode == "wb2" then --wb but for a new file
+	    	ram[file] = {desc={readOnly=false,isDir=false,size=0},contents={}}
+            table.insert(ram["/" .. fs.getDir(file)].children,fs.getName(file))
+            local handle = {pos = 0, file_table = ram[file].contents}
+            local fandle = {}
+            function fandle.close()
+                -- flush gets called before close automatically
+                if not handle then error("Attempted to close closed handle",1) end
+                handle = nil
+            end
+            function fandle.write(f)
+                if not handle then error("Attempted to use closed handle",1) end
+                handle.pos = handle.pos + 1
+                table.insert(handle.file_table,handle.pos,f)
+            end
+            function fandle.flush()
+                ram[file].desc.size = #(ram[file].contents)
+            end
+            return fandle
+        elseif mode == "ab" then --std open
+            local handle = {pos = #(ram[file].contents), file_table = ram[file].contents}
+            local fandle = {}
+            function fandle.close()
+                -- flush gets called before close automatically
+                if not handle then error("Attempted to close closed handle",1) end
+                handle = nil
+            end
+            function fandle.write(f)
+                if not handle then error("Attempted to use closed handle",1) end
+                handle.pos = handle.pos + 1
+                table.insert(handle.file_table,handle.pos,f)
+            end
+            function fandle.flush()
+                ram[file].desc.size = #(ram[file].contents)
+            end
+            return fandle
         else error("Invalid mode",4)
         end
     end
