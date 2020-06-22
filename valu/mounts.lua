@@ -50,6 +50,66 @@ return function(ofs)
     local drive, folder = _findmount(path)
     local stat = mountpoints[drive].fse(folder, "s")
     if mode == "s" then return stat end
+    if mode == "r" or mode == "w" or mode == "a" or mode == "rb" or mode == "wb" or mode == "ab" then
+      if stat and stat.isDir then error(path .. ": Can't open directory",3) end
+      local nmode = mode
+      local noByte = false
+      if mode == "r" then nmode = "rb" end if mode == "w" then nmode = "wb" end if mode == "a" then nmode = "ab" end if mode == "a" and not stat then nmode = "wb2" end if mode == "w" and not stat then nmode = "wb2" end if mode == "wb" and not stat then nmode = "wb2" end if mode == "ab" and not stat then nmode = "wb2" end
+      if mode == "r" or mode == "w" or mode == "a" then noByte = true end
+      if mode == "r" or mode == "rb" then
+         local ohandle = mountpoints[drive].fse(folder, nmode)
+         local size = mountpoints[drive].fse(folder, "s").size
+         return {
+           close = ohandle.close,
+           read = function(n)
+            if not n then n = 1 end
+            if noByte then
+              local out = table.pack(ohandle.read(n))
+              for i, a in ipairs(out) do
+                out[i] = string.char(a)
+              end
+              return table.concat(out,"")
+            else
+              return ohandle.read(n)
+            end
+           end,
+           readAll = function()
+            local out = table.pack(ohandle.read(size))
+            for i, a in ipairs(out) do
+              out[i] = string.char(a)
+            end
+            out = table.concat(out,"")
+            return out
+           end,
+          readLine = function()
+            local out = table.pack(ohandle.read(size))
+            for i, a in ipairs(out) do
+              out[i] = string.char(a)
+            end
+            out = table.concat(out)
+            return string.split(out,"\n")
+           end,
+           seek = ohandle.seek
+         }
+      else
+        local ohandle = mountpoints[drive].fse(folder, nmode)
+        return {
+          close = ohandle.close,
+          seek = ohandle.seek,
+          write = function(thing)
+            if type(thing) == "number" then ohandle.write(thing) elseif type(thing) == "string" then
+              for c in thing:gmatch"." do
+                ohandle.write(string.byte(c))
+              end
+            end
+          end,
+          writeLine = function(thing)
+            if type(thing) == "number" then error("writeLine cannot be used with numbers") end
+            ohandle.write(thing .. "\n")
+          end
+        }
+      end
+    end
     return mountpoints[drive].fse(folder, mode)
   end
   local _ro = function(path)
@@ -142,6 +202,11 @@ return function(ofs)
       local drive, folder = _findmount(path)
       if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found",3) end
       return mountpoints[drive].fse(folder, "f")
+    end,
+    getCapacity = function(path)
+      local drive, folder = _findmount(path)
+      if not mountpoints[drive].fse(folder, "s") then error(path .. ": File or Folder not found",3) end
+      return mountpoints[drive].fse(folder, "c")
     end,
     makeDir = _mdir,
     isReadOnly = _ro,

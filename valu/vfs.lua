@@ -63,6 +63,7 @@ return {
       ),
       getSize = lw("fs.getSize", rpw, ofs.getSize, mounts.getSize, mounts, ofs),
       getFreeSpace = lw("fs.getFreeSpace", rpw, ofs.getFreeSpace, mounts.getFreeSpace, mounts, ofs),
+      getCapacity = lw("fs.getCapacity", rpw, ofs.getCapacity, mounts.getCapacity, mounts, ofs),
       makeDir = lw("fs.makeDir", rpw, ofs.makeDir, mounts.makeDir, mounts, ofs),
       delete = lw("fs.delete", rpw, ofs.delete, mounts.delete, mounts, ofs),
       move = lw(
@@ -103,7 +104,12 @@ return {
         w,
         function(path)
           path = ofs.combine("/", path)
-          return "hdd"
+          if mounts.isReal(path) then
+            return ofs.getDrive(mounts.getrealpath(path))
+          else
+            -- TODO
+            return "hdd"
+          end
         end
       ),
       getName = lw("fs.getName", w, ofs.getName),
