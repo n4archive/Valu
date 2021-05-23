@@ -43,8 +43,9 @@ function string.split(text, pattern, plain)
     return ret
 end
 
+local kernel = require("valu.api")
 local vfs = require("valu.vfs")
 local ofs = fs
-local mainfs = vfs.createAPI(ofs)
+local mainfs = vfs.createAPI(ofs, kernel)
 _G.fs = mainfs.fs
 print("injected fs")
